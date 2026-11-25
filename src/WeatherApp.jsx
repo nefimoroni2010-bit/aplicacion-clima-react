@@ -1,0 +1,66 @@
+import { useState } from 'react'
+import './WeatherApp.css'
+
+export const WeatherApp = () => {
+
+  const [city, setCity] = useState('')
+  const [weatherData, setWeatherData] = useState(null)
+
+const urlBase ='https://api.openweathermap.org/data/2.5/weather'
+const API_KEY = '5777c8dc1c0bb7a9b58150060909bc33'
+const difKelvin = 273.15
+
+const fetchWeatherData = async() => {
+    try{
+        const response = await fetch(`${urlBase}?q=${city}&appid=${API_KEY}&lang=es`)
+        const data = await response.json()
+        console.log(data)
+        setWeatherData(data)
+    }catch (error) {
+      console.error('Ha habido un error: ', error)
+    }
+}
+
+const handleCityChange = (event) => {
+  setCity(event.target.value)
+}
+
+const handleSubmit = (event) => {
+  event.preventDefault()
+  fetchWeatherData()
+}
+
+  return (
+   <div className="container">
+
+       <h1>Aplicacion de Clima</h1>
+       <form onSubmit={handleSubmit}>
+            <input 
+            type="text" 
+            placeholder="Ingrese una Ciudad"
+            value={city}
+            onChange={handleCityChange}
+            />
+            <button type="submit">Buscar</button>
+       </form>
+
+       {
+        weatherData && (
+          <div>
+             <h2>{weatherData.name}, {weatherData.sys.country}</h2>
+             <p>La temperetura actual es {Math.floor(weatherData.main.temp - difKelvin)}ºC</p>
+             <p>La condicion Meteorologica Actual: {weatherData.weather[0].description}</p>
+             <img 
+                 src = {`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
+                 alt={weatherData.weather[0].description}
+               />
+          </div>
+        )
+       }
+
+
+   </div>
+       
+
+  )
+}
